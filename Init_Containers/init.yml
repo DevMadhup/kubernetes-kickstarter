@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    env: dev-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      env: dev-deploy
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        env: dev-deploy
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - name: shared
+          mountPath: /usr/share/nginx/html
+      initContainers:
+      - name: initcontainer
+        image: busybox
+        command: ["sh", "-c", "echo Hi Madhup > /usr/share/nginx/html/index.html"]
+        volumeMounts:
+        - name: shared
+          mountPath: /usr/share/nginx/html
+      - name: setenv
+        image: busybox
+        command: ["sh", "-c", "sleep 60"]
+        env:
+        - name: Name
+          value: Madhup
+      volumes:
+      - name: shared
+        emptyDir: {}
+
